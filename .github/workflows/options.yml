@@ -1,0 +1,27 @@
+name: 5-Min Options Scanner
+
+on:
+  schedule:
+    # हे दर 5 मिनिटांनी रन होईल. (फक्त मार्केट वेळेत रन करण्यासाठी क्रॉन सेट करू शकतो)
+    - cron: '*/5 4-10 * * 1-5' # सोमवार-शुक्रवार, UTC 04:00 ते 10:59 (IST 9:30 AM ते 4:30 PM)
+  workflow_dispatch:
+
+jobs:
+  run-options-scanner:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+        
+      - name: Run Options Scanner
+        env:
+          BOT_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python smart_ai_option.py
