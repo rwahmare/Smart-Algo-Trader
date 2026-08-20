@@ -2,8 +2,7 @@ name: 5-Min Options Scanner
 
 on:
   schedule:
-    # हे दर 5 मिनिटांनी रन होईल. (फक्त मार्केट वेळेत रन करण्यासाठी क्रॉन सेट करू शकतो)
-    - cron: '*/5 4-10 * * 1-5' # सोमवार-शुक्रवार, UTC 04:00 ते 10:59 (IST 9:30 AM ते 4:30 PM)
+    - cron: '*/5 4-10 * * 1-5' # सोमवार-शुक्रवार (IST 9:30 AM ते 4:30 PM)
   workflow_dispatch:
 
 jobs:
@@ -18,7 +17,9 @@ jobs:
           python-version: '3.12'
           
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: |
+          python -m pip install --upgrade pip
+          pip install yfinance pandas pandas-ta requests
         
       - name: Run Options Scanner
         env:
