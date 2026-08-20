@@ -1,27 +1,23 @@
+import os
 import yfinance as yf
 import pandas as pd
 import pandas_ta as ta
 import requests
 import warnings
-import os
-from dotenv import load_dotenv
 
 warnings.filterwarnings('ignore')
 
 # ==========================================
-# 🛑 .env फाईलमधून सिक्रेट टेलिग्राम डिटेल्स घेणे
+# 🛑 GitHub Secrets मधून सिक्रेट टेलिग्राम डिटेल्स घेणे
 # ==========================================
-load_dotenv()
-BOT_TOKEN = os.getenv("BOT_TOKEN")
-CHAT_ID = os.getenv("CHAT_ID")
+BOT_TOKEN = os.environ.get("BOT_TOKEN")
+CHAT_ID = os.environ.get("CHAT_ID")
 
 def send_telegram_message(message):
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+    payload = {"chat_id": CHAT_ID, "text": message}
     try:
-        if BOT_TOKEN and CHAT_ID:
-            url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage?chat_id={CHAT_ID}&text={message}"
-            requests.get(url)
-        else:
-            print("⚠️ Telegram ID सापडले नाहीत! कृपया .env फाईल बरोबर बनवली आहे का ते तपासा.")
+        requests.post(url, json=payload)
     except Exception as e:
         print("Telegram मेसेज पाठवण्यात अडचण:", e)
 
@@ -89,13 +85,13 @@ for ticker, name in indices.items():
             msg = f"🟢 BUY CALL (CE) Alert!\n\nइंडेक्स: {name}\nप्राईस: ₹{current_price:.2f}\nवेळ: {last_time}\n\n(Smart AI Scanner 🤖)"
             trade_signals.append(msg)
             print(f"🔥 CALL Signal Found: {name}")
-            send_telegram_message(msg)  # टेलिग्रामला मेसेज जाईल
+            send_telegram_message(msg) 
             
         elif last_candle['BUY_PE']:
             msg = f"🔴 BUY PUT (PE) Alert!\n\nइंडेक्स: {name}\nप्राईस: ₹{current_price:.2f}\nवेळ: {last_time}\n\n(Smart AI Scanner 🤖)"
             trade_signals.append(msg)
             print(f"🔥 PUT Signal Found: {name}")
-            send_telegram_message(msg)  # टेलिग्रामला मेसेज जाईल
+            send_telegram_message(msg) 
             
     except Exception as e:
         pass
@@ -104,12 +100,8 @@ for ticker, name in indices.items():
 # 3. फायनल रिझल्ट (Output)
 # ==========================================
 print("\n=========================================================================")
-print("🎯 5-Min Options Trading Signals:")
-print("=========================================================================")
-
 if len(trade_signals) == 0:
-    print("सध्या Nifty, BankNifty, Sensex आणि Midcap मध्ये कोणताही मजबूत CE किंवा PE सिग्नल नाही.")
-    print("मार्केट साईडवेज असू शकते, कृपया पुढील 5 मिनिटांच्या कॅन्डलची वाट बघा.")
+    print("सध्या कोणताही मजबूत CE किंवा PE सिग्नल नाही. मार्केट साईडवेज असू शकते.")
 else:
     for signal in trade_signals:
         print(signal)
